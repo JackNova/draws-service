@@ -1,0 +1,128 @@
+{
+  "esito": "OK",
+  "messaggio": null,
+  "anno": 2016,
+  "mese": 6,
+  "giorniRaccolte": [
+    {
+      "giorno": 30,
+      "progressivoGiornaliero": 219
+    },
+    {
+      "giorno": 29,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 28,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 27,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 26,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 25,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 24,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 23,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 22,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 21,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 20,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 19,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 18,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 17,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 16,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 15,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 14,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 13,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 12,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 11,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 10,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 9,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 8,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 7,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 6,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 5,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 4,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 3,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 2,
+      "progressivoGiornaliero": 288
+    },
+    {
+      "giorno": 1,
+      "progressivoGiornaliero": 288
+    }
+  ]
+}

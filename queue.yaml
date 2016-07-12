@@ -1,0 +1,20 @@
+queue:
+
+# issuing a request every 10 seconds -> 6 request / minute
+# 1 hour -> 360 requests 
+# 24 hours -> 8640 requests 
+
+# there are around 288 draws each day
+# giving 8928 draws in a month of 31 days
+
+# it will take 24 hours to download one entire month
+# of draws
+
+- name: fetch-draws
+  max_concurrent_requests: 1
+  rate: 6/m
+  retry_parameters:
+    task_retry_limit: 5
+    min_backoff_seconds: 30
+    max_backoff_seconds: 200
+    max_doublings: 3
