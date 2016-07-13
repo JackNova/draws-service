@@ -75,8 +75,6 @@ class FetchDrawTest(unittest.TestCase):
         self.testbed.init_datastore_v3_stub()
         self.testbed.init_memcache_stub()
         ndb.get_context().clear_cache()
-        queue_yaml_dir = os.path.dirname(os.path.dirname(__file__))
-        self.testbed.init_taskqueue_stub(root_path=queue_yaml_dir)
         with open('test/fixtures/draw.json', 'r') as draw:
             self.draw_mock = draw.read()
 
@@ -86,6 +84,7 @@ class FetchDrawTest(unittest.TestCase):
     @mock.patch('dieci_e_lotto.handlers.handle_fetch')
     def test_fetch(self, mock_handle_fetch):
         params = json.dumps({'year': 2016, 'month': 7, 'day': 1, 'nth': 1})
+        mock_handle_fetch.return_value = None
         response = self.testapp.post(
             '/task/fetch', params)
         self.assertEqual(response.status_int, 200)
