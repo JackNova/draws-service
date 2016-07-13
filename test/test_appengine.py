@@ -99,9 +99,10 @@ class FetchDrawTest(unittest.TestCase):
         # downloaded = wish.is_downloaded_already(2016, 7, 1, 1)
         # self.assertFalse(downloaded)
         handle_fetch(datetime(2016, 7, 1), 1)
-        mock_fetch.assert_called_once()
         already.assert_called_with(2016, 7, 1, 1)
+        mock_fetch.assert_called_once()
         self.assertTrue(wish.is_downloaded_already(2016, 7, 1, 1))
+
 
 class AppTest(unittest.TestCase):
     def setUp(self):
