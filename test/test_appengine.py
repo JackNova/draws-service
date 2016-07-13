@@ -12,6 +12,7 @@ from main import FetchDraw
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 from google.appengine.api import memcache
+from dieci_e_lotto.handlers import handle_fetch
 from dieci_e_lotto.handlers import start_synchronization
 
 
@@ -82,19 +83,22 @@ class FetchDrawTest(unittest.TestCase):
     def tearDown(self):
         self.testbed.deactivate()
 
-    @mock.patch('dieci_e_lotto.wish.is_downloaded_already')
-    @mock.patch('dieci_e_lotto.wish.fetch_draw')
-    def test_fetch(self, mock_fetch, already):
-        mock_fetch.return_value = self.draw_mock
-
+    @mock.patch('dieci_e_lotto.handlers.handle_fetch')
+    def test_fetch(self, mock_handle_fetch):
         params = json.dumps({'year': 2016, 'month': 7, 'day': 1, 'nth': 1})
         response = self.testapp.post(
             '/task/fetch', params)
         self.assertEqual(response.status_int, 200)
+        mock_handle_fetch.assert_called_with(datetime(2016, 7, 1), 1)
+
+    @mock.patch('dieci_e_lotto.wish.is_downloaded_already')
+    @mock.patch('dieci_e_lotto.wish.fetch_draw')
+    def test_handle_fetch(self, mock_fetch, already):
+        mock_fetch.return_value = self.draw_mock
+        handle_fetch(datetime(2016, 7, 1), 1)
         mock_fetch.assert_called_once()
         already.assert_called_with(2016, 7, 1, 1)
         self.assertTrue(wish.is_downloaded_already(2016, 7, 1, 1))
-
 
 class AppTest(unittest.TestCase):
     def setUp(self):

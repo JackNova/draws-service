@@ -12,18 +12,20 @@ class FetchDraw(webapp2.RequestHandler):
         date = datetime(payload.get('year'), payload.get(
             'month'), payload.get('day'))
         nth = payload.get('nth')
-
-        if wish.is_downloaded_already(date.year, date.month, date.day, nth):
-            return
-
-        numbers, jolly = wish.get_draw_lots(date, nth)
-        wish.save_draw(date, nth, numbers, jolly)
+        handle_fetch(date, nth)
 
 
 class DownloadAll(webapp2.RequestHandler):
     def post(self):
         start_synchronization()
 
+
+def handle_fetch(date, nth):
+    if wish.is_downloaded_already(date.year, date.month, date.day, nth):
+            return
+
+    numbers, jolly = wish.get_draw_lots(date, nth)
+    wish.save_draw(date, nth, numbers, jolly)
 
 def start_synchronization():
     year, month, day, nth = wish.get_last_draw()
