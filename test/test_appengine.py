@@ -94,7 +94,11 @@ class FetchDrawTest(unittest.TestCase):
     @mock.patch('dieci_e_lotto.wish.is_downloaded_already')
     @mock.patch('dieci_e_lotto.wish.fetch_draw')
     def test_handle_fetch(self, mock_fetch, already):
+        data_store = self.testbed.get_stub(testbed.DATASTORE_SERVICE_NAME)
+        data_store.Flush()
         mock_fetch.return_value = self.draw_mock
+        # downloaded = wish.is_downloaded_already(2016, 7, 1, 1)
+        # self.assertFalse(downloaded)
         handle_fetch(datetime(2016, 7, 1), 1)
         mock_fetch.assert_called_once()
         already.assert_called_with(2016, 7, 1, 1)
