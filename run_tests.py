@@ -17,12 +17,8 @@
 """Runs the unit test suite for devappserver2."""
 
 
-
 import argparse
-import cStringIO
-import logging
 import os.path
-import random
 import sys
 import unittest
 
@@ -45,28 +41,28 @@ TEST_LIBRARY_PATHS = [
 
 
 def main():
-  sys.path.extend(TEST_LIBRARY_PATHS)
+    sys.path.extend(TEST_LIBRARY_PATHS)
 
-  parser = argparse.ArgumentParser(
-      description='Run the devappserver2 test suite.')
-  parser.add_argument(
-      'tests', nargs='*',
-      help='The fully qualified names of the tests to run (e.g. '
-      'google.appengine.tools.devappserver2.api_server_test). If not given '
-      'then the full test suite will be run.')
+    parser = argparse.ArgumentParser(
+        description='Run the devappserver2 test suite.')
+    parser.add_argument(
+        'tests', nargs='*',
+        help='The fully qualified names of the tests to run (e.g. '
+        'google.appengine.tools.devappserver2.api_server_test). If not given '
+        'then the full test suite will be run.')
 
-  args = parser.parse_args()
+    args = parser.parse_args()
 
-  loader = unittest.TestLoader()
-  if args.tests:
-    tests = loader.loadTestsFromNames(args.tests)
-  else:
-    tests = loader.discover(
-        os.path.join(os.path.dirname(__file__), 'test'),
-        'test_*.py')
+    loader = unittest.TestLoader()
+    if args.tests:
+        tests = loader.loadTestsFromNames(args.tests)
+    else:
+        tests = loader.discover(
+            os.path.join(os.path.dirname(__file__), 'test'),
+            'test_*.py')
 
-  runner = unittest.TextTestRunner(verbosity=2)
-  runner.run(tests)
+    runner = unittest.TextTestRunner(verbosity=2)
+    runner.run(tests)
 
 if __name__ == '__main__':
-  main()
+    main()
