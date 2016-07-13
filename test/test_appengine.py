@@ -12,7 +12,7 @@ from main import FetchDraw
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 from google.appengine.api import memcache
-from dieci_e_lotto.dieci_e_lotto import start_synchronization
+from dieci_e_lotto.handlers import start_synchronization
 
 
 class DatastoreTestCase(unittest.TestCase):
