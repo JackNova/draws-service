@@ -26,8 +26,26 @@ SDK_PATH    Path to Google Cloud or Google App Engine SDK installation, usually
             ~/google_cloud_sdk
 TEST_PATH   Path to package containing test modules"""
 
+DIR_PATH = os.path.join(os.path.dirname(__file__), 'google_appengine')
+
+TEST_LIBRARY_PATHS = [
+    DIR_PATH,
+    os.path.join(DIR_PATH, 'lib', 'cherrypy'),
+    os.path.join(DIR_PATH, 'lib', 'fancy_urllib'),
+    os.path.join(DIR_PATH, 'lib', 'yaml-3.10'),
+    os.path.join(DIR_PATH, 'lib', 'antlr3'),
+    os.path.join(DIR_PATH, 'lib', 'concurrent'),
+    os.path.join(DIR_PATH, 'lib', 'ipaddr'),
+    os.path.join(DIR_PATH, 'lib', 'jinja2-2.6'),
+    os.path.join(DIR_PATH, 'lib', 'webob-1.2.3'),
+    os.path.join(DIR_PATH, 'lib', 'webapp2-2.5.2'),
+    os.path.join(DIR_PATH, 'lib', 'mox'),
+    os.path.join(DIR_PATH, 'lib', 'protorpc-1.0'),
+]
+
 
 def main(sdk_path, test_path):
+    sys.path.extend(TEST_LIBRARY_PATHS)
     # If the sdk path points to a google cloud sdk installation
     # then we should alter it to point to the GAE platform location.
     if os.path.exists(os.path.join(sdk_path, 'platform/google_appengine')):
