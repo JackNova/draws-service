@@ -45,7 +45,7 @@ TEST_LIBRARY_PATHS = [
 
 
 def main(sdk_path, test_path):
-    sys.path.extend(TEST_LIBRARY_PATHS)
+    # sys.path.extend(TEST_LIBRARY_PATHS)
     # If the sdk path points to a google cloud sdk installation
     # then we should alter it to point to the GAE platform location.
     if os.path.exists(os.path.join(sdk_path, 'platform/google_appengine')):

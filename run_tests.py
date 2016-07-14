@@ -41,7 +41,7 @@ TEST_LIBRARY_PATHS = [
 
 
 def main():
-    sys.path.extend(TEST_LIBRARY_PATHS)
+    # sys.path.extend(TEST_LIBRARY_PATHS)
 
     parser = argparse.ArgumentParser(
         description='Run the devappserver2 test suite.')
