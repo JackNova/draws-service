@@ -1,4 +1,4 @@
 *.pyc
 *.coverage
 cover/
-google_appengine/
+.env
