@@ -1,5 +1,6 @@
 import json
 import urllib2
+import logging
 from datetime import datetime
 from datetime import timedelta
 from google.appengine.ext import ndb
@@ -40,12 +41,16 @@ def fetch_calendar(anno, mese):
     url = calendar_url
     payload = json.dumps({
         'anno': anno,
-        'mese': "%d2" % mese
+        'mese': "%02d" % mese
     })
     headers = {'Content-Type': 'application/json'}
     req = urllib2.Request(url, payload, headers)
     r = urllib2.urlopen(req)
+    if r.getcode() != 200:
+        logging.error("fetch calendar for year: %s, month: %s returned %s" % (year, month, r.getcode()))
     json_calendar = r.read()
+    logging.info("calendar got:")
+    logging.info(json_calendar)
     return json_calendar
 
 
