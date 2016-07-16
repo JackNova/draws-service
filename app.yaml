@@ -24,3 +24,7 @@ skip_files:
 - ^(.*/)?.*/RCS/.*$
 - ^(.*/)?\..*$
 # </DEFAULT-CONFIGURATION>
+- ^(.*/)?/test/.*$
+- ^(.*/)?/test_runner\.py
+- ^(.*/)?/requirements\.txt
+- ^(.*/)?/readme\.md
