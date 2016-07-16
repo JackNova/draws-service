@@ -1,3 +1,5 @@
+[![Build Status](https://drone.io/github.com/JackNova/draws-service/status.png)](https://drone.io/github.com/JackNova/draws-service/latest)
+
 # OBJECTIVE
 
 The objective of this simple project has been / is to experiment with a particular development approach better described following.
