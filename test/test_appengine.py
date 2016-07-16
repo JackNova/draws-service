@@ -9,6 +9,7 @@ from datetime import datetime
 from dieci_e_lotto.wish import Draw
 from main import ScheduleFetchDraw
 from main import FetchDraw
+from main import ScheduleDownloadAll
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 from google.appengine.api import memcache
@@ -98,6 +99,32 @@ class FetchDrawTest(unittest.TestCase):
         handle_fetch(datetime(2016, 7, 1), 1)
         already.assert_called_with(2016, 7, 1, 1)
         mock_fetch.assert_called_once()
+
+
+class SynchronizeAllTest(unittest.TestCase):
+    def setUp(self):
+        synch_handler_url = '/schedule/download-all'
+        self.synch_handler_url = synch_handler_url
+        app = webapp2.WSGIApplication([
+            (synch_handler_url, ScheduleDownloadAll)
+        ])
+        self.testapp = webtest.TestApp(app)
+        self.testbed = testbed.Testbed()
+        self.testbed.activate()
+        self.testbed.init_datastore_v3_stub()
+        self.testbed.init_memcache_stub()
+        ndb.get_context().clear_cache()
+        queue_yaml_dir = os.path.dirname(os.path.dirname(__file__))
+        self.testbed.init_taskqueue_stub(root_path=queue_yaml_dir)
+
+    def test_enqueue_task(self):
+        response = self.testapp.post(self.synch_handler_url)
+        self.assertEqual(response.status_int, 200)
+
+        q_stub = self.testbed.get_stub(testbed.TASKQUEUE_SERVICE_NAME)
+        tasks = q_stub.get_filtered_tasks(
+            url='/task/download-all', queue_names="default")
+        self.assertEqual(len(tasks), 1)
 
 
 class AppTest(unittest.TestCase):
