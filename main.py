@@ -15,7 +15,7 @@ class MainHandler(webapp2.RequestHandler):
 class ScheduleDownloadAll(webapp2.RequestHandler):
 
     def post(self):
-        taskqueue.add("/task/download-all")
+        taskqueue.add(url="/task/download-all")
 
 
 class ScheduleFetchDraw(webapp2.RequestHandler):
