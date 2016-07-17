@@ -8,7 +8,7 @@ except Exception, e:
     # .get_application_id() crashed when the module has no access
     # to the .env folder, happens when running tests inside
     # the virtualenv
-    logging.info(e.name)
+    logging.info(e)
     id = 'unittest'
 
 base_application_name = yaml.load(open('app.yaml', 'rb')).get('application')
