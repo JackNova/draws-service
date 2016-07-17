@@ -2,12 +2,11 @@
 
 import os
 import config
+import jinja2
 import webapp2
 from google.appengine.api import taskqueue
 from dieci_e_lotto.handlers import FetchDraw
 from dieci_e_lotto.handlers import DownloadAll
-import jinja2
-from dieci_e_lotto import wish
 from dieci_e_lotto.handlers import DrawsMonitoring
 
 JINJA_ENVIRONMENT = jinja2.Environment(
