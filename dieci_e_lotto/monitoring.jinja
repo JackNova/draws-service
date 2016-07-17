@@ -1,0 +1,30 @@
+<style type="text/css">
+  .small-tile {
+    display: inline-block;
+    width: 27px;
+    height: 27px;
+    line-height: 27px;
+    text-align: center;
+    margin: 2px;
+    border: solid 1px black;
+  }
+
+  .ok {
+    background-color: green;
+  }
+
+  .ko {
+    background-color: yellow;
+  }
+</style>
+
+<div>year: {{year}}</div>
+<div>month: {{month}}</div>
+<div>day: {{day}}</div>
+<div>total: {{total}}</div>
+
+{% for item in xs %}
+<div class="small-tile {{'ok' if item else 'ko'}}">
+  {{loop.index}}
+</div>
+{% endfor %}

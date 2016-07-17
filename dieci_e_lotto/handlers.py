@@ -1,9 +1,40 @@
 # -*- coding: utf-8 -*-
 
+import os
 import json
 import wish
+import jinja2
 import webapp2
 from datetime import datetime
+
+JINJA_ENVIRONMENT = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    extensions=['jinja2.ext.autoescape'],
+    autoescape=True)
+
+
+class DrawsMonitoring(webapp2.RequestHandler):
+
+    def get(self, year, month, day):
+        year = int(year)
+        month = int(month)
+        day = int(day)
+
+        situation = set([nth for (year, month, day, nth)
+                         in wish.get_downloaded_by(year, month, day)])
+        draws = [n in situation for n in range(1, 289)]
+
+        template_values = {
+            'year': year,
+            'month': month,
+            'day': day,
+            'total': len(situation),
+            'xs': draws
+        }
+
+        template = JINJA_ENVIRONMENT.get_template(
+            'monitoring.jinja')
+        self.response.write(template.render(template_values))
 
 
 class FetchDraw(webapp2.RequestHandler):

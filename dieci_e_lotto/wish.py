@@ -120,6 +120,14 @@ def get_downloaded_by_month(year, month):
     return Draw.by_month(year, month)
 
 
+def get_downloaded_by(year, month, day=None):
+    if day is None:
+        return get_downloaded_by_month(year, month)
+    else:
+        xs = Draw.query( Draw.day==day, ancestor=Draw.month_key(year, month) )
+        return set((x.year, x.month, x.day, x.nth) for x in xs.fetch())
+
+
 def is_downloaded_already(year, month, day, nth):
     target = Draw.get_by_id(parent=Draw.month_key(year, month),
                             id=Draw.draw_id(year, month, day, nth))
