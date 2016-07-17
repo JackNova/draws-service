@@ -1,0 +1,5 @@
+cron:
+- description: "sync 10 e lotto"
+  url: /schedule/download-all
+  schedule: every 5 minutes
+  timezone: Europe/Rome
