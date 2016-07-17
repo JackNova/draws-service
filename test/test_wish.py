@@ -4,6 +4,7 @@ import unittest
 from dieci_e_lotto import wish
 from datetime import datetime
 from datetime import timedelta
+import config
 
 
 class WishTestCase(unittest.TestCase):
@@ -58,21 +59,21 @@ class WishTestCase(unittest.TestCase):
 
     def test_is_time_to_stop(self):
         past = datetime.today() - \
-            timedelta(days=wish.MAX_DAYS_IN_THE_PAST + 1)
+            timedelta(days=config.MAX_DAYS_IN_THE_PAST + 1)
         self.assertTrue(wish.is_time_to_stop(past.year, past.month, past.day))
 
         past = datetime.today() - \
-            timedelta(days=wish.MAX_DAYS_IN_THE_PAST)
+            timedelta(days=config.MAX_DAYS_IN_THE_PAST)
         self.assertFalse(wish.is_time_to_stop(
             past.year, past.month, past.day))
 
         past = datetime.today() - \
-            timedelta(days=wish.MAX_DAYS_IN_THE_PAST - 1)
+            timedelta(days=config.MAX_DAYS_IN_THE_PAST - 1)
         self.assertFalse(wish.is_time_to_stop(
             past.year, past.month, past.day))
 
     def test_is_not_time_to_stop_the_same_day(self):
-        wish.MAX_DAYS_IN_THE_PAST = 1
+        config.MAX_DAYS_IN_THE_PAST = 1
         yesterday = datetime.today() - \
             timedelta(days=1)
         self.assertFalse(wish.is_time_to_stop(

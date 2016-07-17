@@ -5,12 +5,10 @@ from datetime import datetime
 from datetime import timedelta
 from google.appengine.ext import ndb
 from google.appengine.api import taskqueue
+import config
 
 calendar_url = "http://www.lottomaticaitalia.it/10elotto/estrazioni-e-vincite/10-e-lotto-calendario-estrazioni-ogni-5.json"
 draw_url = "http://www.lottomaticaitalia.it/10elotto/estrazioni-e-vincite/10-e-lotto-estrazioni-ogni-5.json"
-
-TOTAL_DAY_DRAWS = 288
-MAX_DAYS_IN_THE_PAST = 3
 
 
 def fetch_draw(date, nth):
@@ -140,11 +138,11 @@ def previous_draw(year, month, day, nth):
         date = datetime(year, month, day)
         previous_day = date - timedelta(days=1)
         return (previous_day.year, previous_day.month,
-                previous_day.day, TOTAL_DAY_DRAWS)
+                previous_day.day, config.TOTAL_DAY_DRAWS)
 
 
 def is_time_to_stop(year, month, day):
     stop_date = datetime.today() - \
-        timedelta(days=MAX_DAYS_IN_THE_PAST + 1)
+        timedelta(days=config.MAX_DAYS_IN_THE_PAST + 1)
 
     return datetime(year, month, day) < stop_date

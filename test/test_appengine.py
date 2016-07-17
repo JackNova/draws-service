@@ -15,6 +15,7 @@ from google.appengine.ext import testbed
 from google.appengine.api import memcache
 from dieci_e_lotto.handlers import handle_fetch
 from dieci_e_lotto.handlers import start_synchronization
+import config
 
 
 class DatastoreTestCase(unittest.TestCase):
@@ -160,7 +161,7 @@ class AppTest(unittest.TestCase):
     @mock.patch('dieci_e_lotto.wish.get_last_draw')
     def test_synchronize_all_unneeded_synch(self,
                                             last_draw, downloaded):
-        wish.MAX_DAYS_IN_THE_PAST = 0
+        config.MAX_DAYS_IN_THE_PAST = 0
 
         # STUB get_last_draw
         now = datetime.today()
@@ -193,7 +194,7 @@ class AppTest(unittest.TestCase):
     @mock.patch('dieci_e_lotto.wish.get_last_draw')
     def test_synchronize_enquee_one(self,
                                     last_draw, downloaded):
-        wish.MAX_DAYS_IN_THE_PAST = 0
+        config.MAX_DAYS_IN_THE_PAST = 0
 
         # STUB get_last_draw
         now = datetime.today()
@@ -235,7 +236,7 @@ class AppTest(unittest.TestCase):
     @mock.patch('dieci_e_lotto.wish.get_last_draw')
     def test_synchronize_enquee_some(self,
                                      last_draw, downloaded):
-        wish.MAX_DAYS_IN_THE_PAST = 0
+        config.MAX_DAYS_IN_THE_PAST = 0
 
         # STUB get_last_draw
         now = datetime.today()
@@ -269,7 +270,7 @@ class AppTest(unittest.TestCase):
     @mock.patch('dieci_e_lotto.wish.get_last_draw')
     def test_synchronize_enquee_previous_day(self,
                                              last_draw, downloaded):
-        wish.MAX_DAYS_IN_THE_PAST = 1
+        config.MAX_DAYS_IN_THE_PAST = 1
 
         # STUB get_last_draw
         now = datetime.today()
