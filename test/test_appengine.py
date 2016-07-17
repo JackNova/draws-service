@@ -119,7 +119,7 @@ class SynchronizeAllTest(unittest.TestCase):
         self.testbed.init_taskqueue_stub(root_path=queue_yaml_dir)
 
     def test_enqueue_task(self):
-        response = self.testapp.post(self.synch_handler_url)
+        response = self.testapp.get(self.synch_handler_url)
         self.assertEqual(response.status_int, 200)
 
         q_stub = self.testbed.get_stub(testbed.TASKQUEUE_SERVICE_NAME)
