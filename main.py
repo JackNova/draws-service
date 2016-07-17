@@ -23,7 +23,7 @@ class MainHandler(webapp2.RequestHandler):
 
 class ScheduleDownloadAll(webapp2.RequestHandler):
 
-    def post(self):
+    def get(self):
         taskqueue.add(url="/task/download-all")
 
 
