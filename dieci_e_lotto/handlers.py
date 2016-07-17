@@ -20,7 +20,7 @@ class DrawsMonitoring(webapp2.RequestHandler):
         month = int(month)
         day = int(day)
 
-        situation = set([nth for (year, month, day, nth)
+        situation = set([nth for (y, m, d, nth)
                          in wish.get_downloaded_by(year, month, day)])
         draws = [n in situation for n in range(1, 289)]
 
