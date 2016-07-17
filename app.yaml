@@ -9,6 +9,14 @@ handlers:
   static_files: favicon.ico
   upload: favicon\.ico
 
+- url: /schedule/.*
+  script: main.app
+  login: admin
+
+- url: /task/.*
+  script: main.app
+  login: admin
+
 - url: .*
   script: main.app
 
