@@ -70,4 +70,11 @@ Have the most of your tests composed of unit tests, write them first. As soon as
 
 - survive the temptation of logging when test results are not what you expect, write more and better unit tests to diagnose and fix the problem
 
+### CONTINUOUS INTEGRATION
+
+- choose the environment where you will run your continuous integration pipeline early and strieve to replicate the exact same environment on your machine.
+
+### WRITE TESTS BEFORE FIXING BUGS
+
+whenever you notice a bug, your first task should be write the test that captures that bug, then refactor and ensure that the test passes.
 
