@@ -5,9 +5,11 @@ import logging
 try:
     id = app_identity.get_application_id()
 except Exception, e:
-    logging.info(e)
-else:
-    id = ''
+    # .get_application_id() crashed when the module has no access
+    # to the .env folder, happens when running tests inside
+    # the virtualenv
+    logging.info(e.name)
+    id = 'unittest'
 
 base_application_name = yaml.load(open('app.yaml', 'rb')).get('application')
 
@@ -21,3 +23,5 @@ elif id == base_application_name + '_staging':
     MAX_DAYS_IN_THE_PAST = 3
 else:
     MAX_DAYS_IN_THE_PAST = 3
+
+logging.info("current app id is %s" % id)
