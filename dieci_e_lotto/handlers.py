@@ -4,8 +4,13 @@ import os
 import json
 import wish
 import jinja2
+import logging
 import webapp2
+from entities import Draw
+import repository as repo
+from itertools import groupby
 from datetime import datetime
+from calendar import monthrange
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -20,8 +25,8 @@ class DrawsMonitoring(webapp2.RequestHandler):
         month = int(month)
         day = int(day)
 
-        situation = set([nth for (y, m, d, nth)
-                         in wish.get_downloaded_by(year, month, day)])
+        situation = set([x.nth for x
+                         in repo.get_by_day(y, m, d)])
         draws = [n in situation for n in range(1, 289)]
 
         template_values = {
@@ -52,16 +57,19 @@ class DownloadAll(webapp2.RequestHandler):
 
 
 def handle_fetch(date, nth):
-    if wish.is_downloaded_already(date.year, date.month, date.day, nth):
+    already = repo.get_nth_in_day(date.year, date.month, date.day, nth)
+    if already is not None:
         return
 
-    numbers, jolly = wish.get_draw_lots(date, nth)
-    wish.save_draw(date, nth, numbers, jolly)
+    lots, jolly = wish.get_draw_lots(date, nth)
+    draw = Draw(date.year, date.month, date.day, nth, lots, jolly)
+    repo.save_draw(draw)
 
 
 def start_synchronization():
     year, month, day, nth = wish.get_last_draw()
-    downloaded_already = wish.get_downloaded_by_month(year, month)
+    downloaded_already = set([(x.year, x.month, x.day, x.nth)
+                              for x in repo.get_by_month(year, month)])
     memo_month = month
     memo_day = day
     while True:
@@ -74,5 +82,6 @@ def start_synchronization():
         year, month, day, nth = wish.previous_draw(
             year, month, day, nth)
         if memo_month is not month:
-            downloaded_already = wish.get_downloaded_by_month(year, month)
+            downloaded_already = set([(x.year, x.month, x.day, x.nth)
+                                      for x in repo.get_by_month(year, month)])
             memo_month = month

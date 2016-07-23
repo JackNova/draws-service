@@ -1,11 +1,10 @@
 import json
+import config
 import urllib2
 import logging
 from datetime import datetime
 from datetime import timedelta
-from google.appengine.ext import ndb
 from google.appengine.api import taskqueue
-import config
 
 calendar_url = "http://www.lottomaticaitalia.it/10elotto/estrazioni-e-vincite/10-e-lotto-calendario-estrazioni-ogni-5.json"
 draw_url = "http://www.lottomaticaitalia.it/10elotto/estrazioni-e-vincite/10-e-lotto-estrazioni-ogni-5.json"
@@ -84,59 +83,6 @@ def schedule_fetch_draw(year, month, day, nth):
 
     # logging.info(
     #     'Task {} enqueued, ETA {}.'.format(task.name, task.eta))
-
-
-class Draw(ndb.Model):
-    year = ndb.IntegerProperty()
-    month = ndb.IntegerProperty()
-    day = ndb.IntegerProperty()
-    nth = ndb.IntegerProperty()
-    lots = ndb.IntegerProperty(repeated=True)
-    jolly = ndb.IntegerProperty()
-
-    @classmethod
-    def month_key(cls, year, month):
-        return ndb.Key('Month', "%s-%s" % (year, month))
-
-    @classmethod
-    def draw_id(cls, year, month, day, nth):
-        return "%s-%s-%s-%s" % (year, month, day, nth)
-
-    @classmethod
-    def create(cls, year, month, day, nth, lots, jolly):
-        return Draw(id=cls.draw_id(year, month, day, nth),
-                    parent=cls.month_key(year, month),
-                    year=year, month=month,
-                    day=day, nth=nth,
-                    lots=lots, jolly=jolly)
-
-    @classmethod
-    def by_month(cls, year, month):
-        xs = Draw.query(ancestor=cls.month_key(year, month)).fetch()
-        return set((x.year, x.month, x.day, x.nth) for x in xs)
-
-
-def get_downloaded_by_month(year, month):
-    return Draw.by_month(year, month)
-
-
-def get_downloaded_by(year, month, day=None):
-    if day is None:
-        return get_downloaded_by_month(year, month)
-    else:
-        xs = Draw.query( Draw.day==day, ancestor=Draw.month_key(year, month) )
-        return set((x.year, x.month, x.day, x.nth) for x in xs.fetch())
-
-
-def is_downloaded_already(year, month, day, nth):
-    target = Draw.get_by_id(parent=Draw.month_key(year, month),
-                            id=Draw.draw_id(year, month, day, nth))
-    return target is not None
-
-
-def save_draw(date, nth, lots, jolly):
-    record = Draw.create(date.year, date.month, date.day, nth, lots, jolly)
-    record.put()
 
 
 def previous_draw(year, month, day, nth):

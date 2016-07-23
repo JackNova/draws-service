@@ -1,21 +1,23 @@
 import os
 import mock
 import json
+import config
 import webapp2
 import webtest
 import unittest
-from dieci_e_lotto import wish
-from datetime import datetime
-from dieci_e_lotto.wish import Draw
-from main import ScheduleFetchDraw
 from main import FetchDraw
+from datetime import datetime
+from dieci_e_lotto import wish
+from main import ScheduleFetchDraw
 from main import ScheduleDownloadAll
 from google.appengine.ext import ndb
+from dieci_e_lotto.entities import Draw
+import dieci_e_lotto.repository as repo
 from google.appengine.ext import testbed
 from google.appengine.api import memcache
+from dieci_e_lotto.repository import NdbDraw
 from dieci_e_lotto.handlers import handle_fetch
 from dieci_e_lotto.handlers import start_synchronization
-import config
 
 
 class DatastoreTestCase(unittest.TestCase):
@@ -27,9 +29,9 @@ class DatastoreTestCase(unittest.TestCase):
         self.testbed.init_memcache_stub()
         ndb.get_context().clear_cache()
 
-        draws_8 = [Draw.create(2015, 8, d, n, [1, 2, 3, 4, 5], 1)
+        draws_8 = [NdbDraw.create(2015, 8, d, n, [1, 2, 3, 4, 5], 1)
                    for d in range(10) for n in range(10)]
-        draws_9 = [Draw.create(2015, 9, d, n, [1, 2, 3, 4, 5], 1)
+        draws_9 = [NdbDraw.create(2015, 9, d, n, [1, 2, 3, 4, 5], 1)
                    for d in range(10) for n in range(10)]
         ndb.put_multi(draws_8)
         ndb.put_multi(draws_9)
@@ -38,27 +40,32 @@ class DatastoreTestCase(unittest.TestCase):
         self.testbed.deactivate()
 
     def test_query_by_month(self):
-        d8 = Draw.by_month(2015, 8)
+        d8 = set([(x.year, x.month, x.day, x.nth)
+                  for x in NdbDraw.query_by_month(2015, 8)])
         self.assertEqual(100, len(d8))
 
         self.assertFalse((2016, 9, 11, 3) in d8)
         self.assertTrue((2015, 8, 1, 1) in d8)
 
     def test_is_downloaded_already(self):
-        self.assertTrue(wish.is_downloaded_already(2015, 8, 1, 1))
+        already = repo.get_nth_in_day(2015, 8, 1, 1)
+        self.assertIsNotNone(already)
 
     def test_is_not_downloaded(self):
-        self.assertFalse(wish.is_downloaded_already(2016, 1, 1, 1))
+        already = repo.get_nth_in_day(2016, 1, 1, 1)
+        self.assertIsNone(already)
 
     def test_save_draw(self):
         lots = range(1, 21)
         jolly = 90
         year, month, day, nth = 2017, 7, 11, 1
         date = datetime(year, month, day)
-        wish.save_draw(date, nth, lots, jolly)
-        self.assertTrue(wish.is_downloaded_already(year, month, day, nth))
-        got = Draw.get_by_id(Draw.draw_id(
-            year, month, day, nth), parent=Draw.month_key(year, month))
+        draw = Draw(year, month, day, nth, lots, jolly)
+        repo.save_draw(draw)
+        already = repo.get_nth_in_day(year, month, day, nth)
+        self.assertIsNotNone(already)
+        got = NdbDraw.get_by_id(NdbDraw.draw_id(
+            year, month, day, nth), parent=NdbDraw.month_key(year, month))
         self.assertEqual(got.lots, lots)
         self.assertEqual(got.jolly, jolly)
 
@@ -92,11 +99,11 @@ class FetchDrawTest(unittest.TestCase):
         self.assertEqual(response.status_int, 200)
         mock_handle_fetch.assert_called_with(datetime(2016, 7, 1), 1)
 
-    @mock.patch('dieci_e_lotto.wish.is_downloaded_already')
+    @mock.patch('dieci_e_lotto.repository.get_nth_in_day')
     @mock.patch('dieci_e_lotto.wish.fetch_draw')
     def test_handle_fetch(self, mock_fetch, already):
         mock_fetch.return_value = self.draw_mock
-        already.return_value = False
+        already.return_value = None
         handle_fetch(datetime(2016, 7, 1), 1)
         already.assert_called_with(2016, 7, 1, 1)
         mock_fetch.assert_called_once()
@@ -157,7 +164,7 @@ class AppTest(unittest.TestCase):
             url="/task/fetch-draw", queue_names="fetch-draws")
         self.assertEqual(len(tasks), 0)
 
-    @mock.patch('dieci_e_lotto.wish.get_downloaded_by_month')
+    @mock.patch('dieci_e_lotto.repository.get_by_month')
     @mock.patch('dieci_e_lotto.wish.get_last_draw')
     def test_synchronize_all_unneeded_synch(self,
                                             last_draw, downloaded):
@@ -168,16 +175,15 @@ class AppTest(unittest.TestCase):
         last_draw.return_value = (now.year, now.month, now.day, 4)
 
         # STUB downloaded_by_month
-        downloaded.return_value = set([
-            (now.year, now.month, now.day, i)
-            for i in range(1, 5)])
+        downloaded.return_value = [
+            Draw(now.year, now.month, now.day, i, [], 0) for i in range(1, 5)]
 
         self.assertIn(
-            (now.year, now.month, now.day, 4),
+            (now.year, now.month, now.day, 4, [], 0),
             downloaded.return_value)
 
         self.assertNotIn(
-            (now.year, now.month, now.day, 5),
+            (now.year, now.month, now.day, 5, [], 0),
             downloaded.return_value)
 
         start_synchronization()
@@ -190,7 +196,7 @@ class AppTest(unittest.TestCase):
             url="/task/fetch-draw", queue_names="fetch-draws")
         self.assertEqual(len(tasks), 0)
 
-    @mock.patch('dieci_e_lotto.wish.get_downloaded_by_month')
+    @mock.patch('dieci_e_lotto.repository.get_by_month')
     @mock.patch('dieci_e_lotto.wish.get_last_draw')
     def test_synchronize_enquee_one(self,
                                     last_draw, downloaded):
@@ -201,16 +207,17 @@ class AppTest(unittest.TestCase):
         last_draw.return_value = (now.year, now.month, now.day, 288)
 
         # STUB downloaded_by_month
-        downloaded.return_value = set([
-            (now.year, now.month, now.day, i)
-            for i in range(1, 288)])
+        downloaded.return_value = [
+            Draw(now.year,
+                 now.month,
+                 now.day, i, [], 0) for i in range(1, 288)]
 
         self.assertIn(
-            (now.year, now.month, now.day, 287),
+            (now.year, now.month, now.day, 287, [], 0),
             downloaded.return_value)
 
         self.assertNotIn(
-            (now.year, now.month, now.day, 288),
+            (now.year, now.month, now.day, 288, [], 0),
             downloaded.return_value)
 
         start_synchronization()
@@ -232,7 +239,7 @@ class AppTest(unittest.TestCase):
 
         self.assertEqual(len(tasks), 1)
 
-    @mock.patch('dieci_e_lotto.wish.get_downloaded_by_month')
+    @mock.patch('dieci_e_lotto.repository.get_by_month')
     @mock.patch('dieci_e_lotto.wish.get_last_draw')
     def test_synchronize_enquee_some(self,
                                      last_draw, downloaded):
@@ -243,16 +250,17 @@ class AppTest(unittest.TestCase):
         last_draw.return_value = (now.year, now.month, now.day, 288)
 
         # STUB downloaded_by_month
-        downloaded.return_value = set([
-            (now.year, now.month, now.day, i)
-            for i in range(1, 189)])
+        downloaded.return_value = [
+            Draw(now.year,
+                 now.month,
+                 now.day, i, [], 0) for i in range(1, 189)]
 
         self.assertIn(
-            (now.year, now.month, now.day, 188),
+            (now.year, now.month, now.day, 188, [], 0),
             downloaded.return_value)
 
         self.assertNotIn(
-            (now.year, now.month, now.day, 189),
+            (now.year, now.month, now.day, 189, [], 0),
             downloaded.return_value)
 
         start_synchronization()
@@ -266,7 +274,7 @@ class AppTest(unittest.TestCase):
 
         self.assertEqual(len(tasks), 100)
 
-    @mock.patch('dieci_e_lotto.wish.get_downloaded_by_month')
+    @mock.patch('dieci_e_lotto.repository.get_by_month')
     @mock.patch('dieci_e_lotto.wish.get_last_draw')
     def test_synchronize_enquee_previous_day(self,
                                              last_draw, downloaded):
@@ -277,7 +285,7 @@ class AppTest(unittest.TestCase):
         last_draw.return_value = (now.year, now.month, now.day, 1)
 
         # STUB downloaded_by_month
-        downloaded.return_value = set()
+        downloaded.return_value = []
 
         start_synchronization()
 
