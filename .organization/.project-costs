@@ -1,0 +1,47 @@
+# July
+
+16 - xxxxx
+17 - xxxx
+18 - xx
+
+### 19
+
+- monitoring page: each day has 288 draws
+
+
+### 23
+pomodoros: 1-2-3-4
+
+| DONE| TASK                               |
+| ___ | __________________________________ |
+| [x] | create immutable domain entities   |
+| [x] | implement repository pattern       |
+| [x] | refactor tests                     |
+
+
+### 24
+pomodoros: 1-2-3
+
+| DONE| TASK                               |
+| ___ | __________________________________ |
+| [x] | document followed principles       |
+| [x] | test repository                    |
+
+
+### 25
+pomodoros: 1-2
+
+|DONE | TASK                               |
+| ___ | __________________________________ |
+| [x] | set up coverage reporting and badge|
+| [x] | keep the coverall token private    |
+
+
+### 26
+pomodoros: 
+|DONE | TASK                               |
+| ___ | __________________________________ |
+| [ ] | fix indexes and consider migration |
+| [ ] | complete monitoring pages          |
+| [ ] | deploy and test                    |
+| [ ] | refactor download all script       |
