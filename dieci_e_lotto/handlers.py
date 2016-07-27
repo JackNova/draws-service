@@ -26,7 +26,7 @@ class DrawsMonitoring(webapp2.RequestHandler):
         day = int(day)
 
         situation = set([x.nth for x
-                         in repo.get_by_day(y, m, d)])
+                         in repo.get_by_day(year, month, day)])
         draws = [n in situation for n in range(1, 289)]
 
         template_values = {
