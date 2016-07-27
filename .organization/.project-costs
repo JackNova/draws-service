@@ -13,7 +13,7 @@
 pomodoros: 1-2-3-4
 
 | DONE| TASK                               |
-| ___ | __________________________________ |
+| --- | ---------------------------------- |
 | [x] | create immutable domain entities   |
 | [x] | implement repository pattern       |
 | [x] | refactor tests                     |
@@ -23,7 +23,7 @@ pomodoros: 1-2-3-4
 pomodoros: 1-2-3
 
 | DONE| TASK                               |
-| ___ | __________________________________ |
+| --- | ---------------------------------- |
 | [x] | document followed principles       |
 | [x] | test repository                    |
 
@@ -32,16 +32,30 @@ pomodoros: 1-2-3
 pomodoros: 1-2
 
 |DONE | TASK                               |
-| ___ | __________________________________ |
+| --- | ---------------------------------- |
 | [x] | set up coverage reporting and badge|
 | [x] | keep the coverall token private    |
 
 
 ### 26
-pomodoros: 
-|DONE | TASK                               |
-| ___ | __________________________________ |
-| [ ] | fix indexes and consider migration |
-| [ ] | complete monitoring pages          |
-| [ ] | deploy and test                    |
-| [ ] | refactor download all script       |
+from now on, each task in the list is completed in 25 minutes time
+the todo list can be written ahead but when 25 minutes passes
+the relevant line is updated with the activity that has been worked
+and the item is marked as complete.
+
+| DONE | TASK                                      |
+| ---  | ----------------------------------        |
+| [x]  | start migration script                    |
+| [x]  | look further into ndb.repeated properties |
+| [x]  | continue on migration script              |
+
+
+
+### 27
+| DONE | TASK                                      |
+| ---  | ----------------------------------        |
+| [x]  | test migration
+| [ ]  | fix indexes and decide how to migrate        |
+| [ ]  | complete monitoring pages                 |
+| [ ]  | deploy and test                           |
+| [ ]  | refactor download all script              |
