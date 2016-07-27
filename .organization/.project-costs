@@ -52,10 +52,11 @@ and the item is marked as complete.
 
 
 ### 27
-| DONE | TASK                                      |
-| ---  | ----------------------------------        |
-| [x]  | test migration
-| [ ]  | fix indexes and decide how to migrate        |
-| [ ]  | complete monitoring pages                 |
-| [ ]  | deploy and test                           |
-| [ ]  | refactor download all script              |
+| DONE | TASK                                  |
+| ---  | ----------------------------------    |
+| [x]  | test migration                        |
+| [x]  | fix monitoring my month               |
+| [ ]  | fix indexes and decide how to migrate |
+| [ ]  | complete monitoring pages             |
+| [ ]  | deploy and test                       |
+| [ ]  | refactor download all script          |
