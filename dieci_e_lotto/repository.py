@@ -54,18 +54,18 @@ class NdbDraw(ndb.Model):
 
     @classmethod
     def query_by_month(cls, year, month):
-        xs = cls.query(ancestor=cls.month_key(year, month)).order(
-            cls.year, cls.month, cls.day, cls.nth).fetch()
-        return xs
+        q = cls.query(ancestor=cls.month_key(year, month)).order(
+            cls.year, cls.month, cls.day, cls.nth)
+        return q
 
     @classmethod
     def query_by_day(cls, year, month, day):
-        xs = cls.query(cls.day == day, ancestor=cls.month_key(
+        q = cls.query(cls.day == day, ancestor=cls.month_key(
             year, month)).order(cls.year, cls.month, cls.day, cls.nth)
-        return xs
+        return q
 
     @classmethod
     def query_nth_in_day(cls, year, month, day, nth):
-        x = cls.get_by_id(parent=cls.month_key(year, month),
+        q = cls.get_by_id(parent=cls.month_key(year, month),
                           id=cls.draw_id(year, month, day, nth))
-        return x
+        return q
