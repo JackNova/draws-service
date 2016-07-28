@@ -50,13 +50,20 @@ and the item is marked as complete.
 | [x]  | continue on migration script              |
 
 
-
 ### 27
 | DONE | TASK                                  |
 | ---  | ----------------------------------    |
 | [x]  | test migration                        |
 | [x]  | fix monitoring my month               |
-| [ ]  | fix indexes and decide how to migrate |
-| [ ]  | complete monitoring pages             |
-| [ ]  | deploy and test                       |
+
+
+### 28
+| DONE | TASK                                  |
+| ---  | ----------------------------------    |
+| [x]  | diagnose index.yaml problem           |
+| [x]  | fix indexes and decide how to migrate |
+|      | complete monitoring pages             |
+|      | deploy and test                       |
+|      | migrate                               |
+|      | write tests for monitoring pages      |
 | [ ]  | refactor download all script          |
