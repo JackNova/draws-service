@@ -8,6 +8,7 @@ from google.appengine.api import taskqueue
 from dieci_e_lotto.handlers import FetchDraw
 from dieci_e_lotto.handlers import DownloadAll
 from dieci_e_lotto.handlers import DrawsMonitoring
+from dieci_e_lotto.handlers import MonthMonitoring
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -36,6 +37,7 @@ class ScheduleFetchDraw(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/monitoring/10-e-lotto/(\d+)/(\d+)/(\d+)', DrawsMonitoring),
+    ('/monitoring/10-e-lotto/(\d+)/(\d+)', MonthMonitoring),
     ('/schedule/download-all', ScheduleDownloadAll),
     ('/task/download-all', DownloadAll),
     ('/schedule/fetch-draw', ScheduleFetchDraw),

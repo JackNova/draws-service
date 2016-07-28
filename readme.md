@@ -1,4 +1,5 @@
 [![Build Status](https://drone.io/github.com/JackNova/draws-service/status.png)](https://drone.io/github.com/JackNova/draws-service/latest)
+[![Coverage Status](https://coveralls.io/repos/github/JackNova/draws-service/badge.svg?branch=master)](https://coveralls.io/github/JackNova/draws-service?branch=master)
 
 # OBJECTIVE
 
@@ -32,7 +33,7 @@ I'd like to have my own copy of their repo with the draws.
 
 ### TASKQUEUE ORGANIZATION
 
-taskqueue are powerfull tools, they give you retry/back-off policy for free and allow you a fine grained configuration on the queue behaviour.
+taskqueue are powerful tools, they give you retry/back-off policy for free and allow you a fine grained configuration on the queue behaviour.
 
 - put directly in the index of your module the EventHandlers that are just wrapper for a taskqueue call. This way you have complete visibility on the urls that compose the module.
 
@@ -42,8 +43,8 @@ taskqueue are powerfull tools, they give you retry/back-off policy for free and 
 
 When starting the design of your system, provide a natural language description of the task that you are trying to accomplish and make use of an ideal module called wish that contains all of the operations you need to orchestrate in order to accomplish your task.
 
-- strieve to keep optimization details out of this layer of code
-- start implementing the operations you wish you had keeping in mind that you have to split and arrange them in order to have useful and meaningful tests assuring you the good health of your codebase
+- strive to keep optimization details out of this layer of code
+- start implementing the operations you wish you had keeping in mind that you have to split and arrange them in order to have useful and meaningful tests assuring you the good health of your code base
 - when the application is complete and works and your coverage is near 100% and all tests pass, start organizing the taxonomy of your system, getting rid of the only wish module, make use of dependency injection
 
 ### ABSTRACT AWAY THE INFRASTRUCTURE
@@ -52,12 +53,32 @@ Avoid tight coupling of infrastructure specific details with your codebase
 
 ### KEEP AWAY FROM FUNCTIONAL DECOMPOSITION
 
-Remember that the funcionality of your application should came out of orchestration of other components.
+Remember that the functionality of your application should came out of orchestration of other components.
 Have your taxonomy composed of Managers that are composed of Engines
 
 ### ENCAPSULATE THIRD PARTY SYSTEMS CALLS DETAILS
 
 encapsulate details of http request towards third parties: have a function that knows about the details of the request/response and have a function that uses this http client and formats/outputs the data in a format that makes sense for the rest of the application.
+
+
+### BALANCE UNIVERSAL PRINCIPLES WITH PRAGMATIC NEEDS
+
+when designing the system avoid putting to much effort on the quest for the Graal and start from your pragmatic needs instead
+
+
+### REPOSITORY
+
+I prefer a top bottom design: first I choose what is the api that I need in my application (this is obvious if you follow a wishful thinking approach, layers and taxonomy doesn't exist yet when the first working version of the core functionality of the application is delivered).
+
+Domain entities should be represented as immutable data structure and should contain no logic, when working with python my choice is named tuples.
+
+The fact that you will use data in a certain way and making use of particular data structure shouldn't go into the repository but should live at logic level: in this particular application, one of the requirement of the application is to be able to check if a particular draw has already been downloaded; since there is a moment when the application does many of this calls one after the other, I choose to benefit of the `set` characteristics and make a set of tuples that I can quickly query with the pattern `some_draw in draws_tuples_set`.
+In the first draft of the application I was returning that kind of set from the functions in the wish module. Then I re-factored promoting a more general and simple api for the repository.
+
+There are 3 layers of responsibility:
+- the business logic layer, here you make use of the public api of the repository module, here you shape the aspect of the api; apply particular transformation to the retrieved data to reach particular goals; make use of custom data structures.
+- the repository interface (the public api you will expose). Here you should exchange information using primitive types and domain entities; this layer is a wrapper on the underlying one that encapsulate infrastructure specific concepts.
+- closer to the infrastructure details: here I use the ndb library and encapsulate all that is tightly coupled with the library and the infrastructure: querying, sorting, data modeling.
 
 
 ## TESTING
@@ -77,4 +98,10 @@ Have the most of your tests composed of unit tests, write them first. As soon as
 ### WRITE TESTS BEFORE FIXING BUGS
 
 whenever you notice a bug, your first task should be write the test that captures that bug, then refactor and ensure that the test passes.
+
+# ENSURING IDEMPOTENCY AND DETERMINISM
+
+- Use a custom queue to schedule the `download-all` task to ensure that only one task at a time in that queue gets executed, it will be impossible to schedule other tasks when one is in progress
+- The first operation of that task is to check a flag into memcache that tells if the download-all operation is in progress, if not set it, if yes stop immediately
+- Enqueue the first cluster of operation (one day draws for example)
 

@@ -1,0 +1,10 @@
+<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+
+<div>Year: {{year}}</div>
+<div>Month: {{month}}</div>
+
+{% for day in days %}
+  <div class="small-tile {{ 'ok' if day else 'ko' }}">
+  <a href="{{month}}/{{loop.index}}">{{loop.index}}</a>
+  </div>
+{% endfor %}  

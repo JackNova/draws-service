@@ -3,6 +3,7 @@
 import os
 import json
 import wish
+import config
 import jinja2
 import logging
 import webapp2
@@ -27,7 +28,7 @@ class DrawsMonitoring(webapp2.RequestHandler):
 
         situation = set([x.nth for x
                          in repo.get_by_day(year, month, day)])
-        draws = [n in situation for n in range(1, 289)]
+        draws = [n in situation for n in range(1, config.TOTAL_DAY_DRAWS + 1)]
 
         template_values = {
             'year': year,
@@ -39,6 +40,29 @@ class DrawsMonitoring(webapp2.RequestHandler):
 
         template = JINJA_ENVIRONMENT.get_template(
             'monitoring.jinja')
+        self.response.write(template.render(template_values))
+
+
+class MonthMonitoring(webapp2.RequestHandler):
+
+    def get(self, year, month):
+        year = int(year)
+        month = int(month)
+
+        db = repo.get_by_month(year, month)
+        situation = dict(groupby(db, lambda x: x.day))
+        first_week_day, total_days = monthrange(year, month)
+        days = [len(list(situation.get(day) or [])) ==
+                config.TOTAL_DAY_DRAWS for day in range(1, total_days + 1)]
+
+        template_values = {
+            'year': year,
+            'month': month,
+            'days': days
+        }
+
+        template = JINJA_ENVIRONMENT.get_template(
+            'monitor-month.jinja')
         self.response.write(template.render(template_values))
 
 
