@@ -33,7 +33,8 @@ class UpdateSchemaTestCase(unittest.TestCase):
         self.testbed.init_memcache_stub()
         ndb.get_context().clear_cache()
         queue_yaml_dir = os.path.dirname(os.path.dirname(__file__))
-        self.testbed.init_taskqueue_stub(root_path=queue_yaml_dir, auto_task_running=True)
+        self.testbed.init_taskqueue_stub(
+            root_path=queue_yaml_dir, auto_task_running=True)
 
         app = webapp2.WSGIApplication([
             ('/update-schema', migrations.UpdateHandler)

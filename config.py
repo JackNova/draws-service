@@ -16,6 +16,9 @@ base_application_name = yaml.load(open('app.yaml', 'rb')).get('application')
 
 TOTAL_DAY_DRAWS = 288
 MAX_DAYS_IN_THE_PAST = 3
+# when the fetch_draws queue contains the following amount of tasks
+# stop enqueuing other tasks
+FETCH_DRAW_BATCH_SIZE = 12
 
 if id == 'develop':
     MAX_DAYS_IN_THE_PAST = 0

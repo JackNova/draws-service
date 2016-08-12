@@ -1,4 +1,5 @@
 import os
+import sys
 import mock
 import json
 import config
@@ -7,7 +8,9 @@ import webtest
 import unittest
 from main import FetchDraw
 from datetime import datetime
+from datetime import timedelta
 from dieci_e_lotto import wish
+from calendar import monthrange
 from main import ScheduleFetchDraw
 from main import ScheduleDownloadAll
 from google.appengine.ext import ndb
@@ -18,6 +21,7 @@ from google.appengine.api import memcache
 from dieci_e_lotto.repository import NdbDraw
 from dieci_e_lotto.handlers import handle_fetch
 from dieci_e_lotto.handlers import start_synchronization
+import logging
 
 
 class DatastoreTestCase(unittest.TestCase):
@@ -145,6 +149,7 @@ class AppTest(unittest.TestCase):
         self.testbed.activate()
         queue_yaml_dir = os.path.dirname(os.path.dirname(__file__))
         self.testbed.init_taskqueue_stub(root_path=queue_yaml_dir)
+        self.old_logging_level = logging.getLogger().level
 
     def test_schedule_fetch_draw(self):
         params = json.dumps({'year': 2016, 'month': 7, 'day': 1, 'nth': 1})
@@ -272,7 +277,7 @@ class AppTest(unittest.TestCase):
         tasks = q_stub.get_filtered_tasks(
             url="/task/fetch-draw", queue_names="fetch-draws")
 
-        self.assertEqual(len(tasks), 100)
+        self.assertEqual(len(tasks), config.FETCH_DRAW_BATCH_SIZE)
 
     @mock.patch('dieci_e_lotto.repository.get_by_month')
     @mock.patch('dieci_e_lotto.wish.get_last_draw')
@@ -296,7 +301,150 @@ class AppTest(unittest.TestCase):
         tasks = q_stub.get_filtered_tasks(
             url="/task/fetch-draw", queue_names="fetch-draws")
 
-        self.assertEqual(len(tasks), 289)
+        self.assertEqual(len(tasks), config.FETCH_DRAW_BATCH_SIZE)
+
+    def tearDown(self):
+        self.testbed.deactivate()
+
+
+# last day of month and all already downloaded, expect first n of previous
+# month  enqueued
+    @mock.patch('dieci_e_lotto.repository.get_by_month')
+    @mock.patch('dieci_e_lotto.wish.get_last_draw')
+    def test_synchronize_on_last_draw_of_month(self,
+                                               last_draw, downloaded):
+        config.MAX_DAYS_IN_THE_PAST = 10
+        config.FETCH_DRAW_BATCH_SIZE = 12
+
+        # STUB get_last_draw
+        now = datetime.today()
+        first_week_day, total_days = monthrange(now.year, now.month)
+        last_draw.return_value = (
+            now.year, now.month, now.day, config.TOTAL_DAY_DRAWS)
+
+        # STUB downloaded_by_month
+        downloaded.return_value = [
+            Draw(now.year,
+                 now.month,
+                 now.day, i, [], 0) for i in range(1, config.TOTAL_DAY_DRAWS + 1)]
+
+        start_synchronization()
+
+        last_draw.assert_called_once()
+        downloaded.assert_called_with(now.year, now.month)
+
+        q_stub = self.testbed.get_stub(testbed.TASKQUEUE_SERVICE_NAME)
+        tasks = q_stub.get_filtered_tasks(
+            url="/task/fetch-draw", queue_names="fetch-draws")
+
+        self.assertEqual(len(tasks), config.FETCH_DRAW_BATCH_SIZE)
+
+        xs = [json.loads(x.payload) for x in tasks]
+        yesterday = now - timedelta(1)
+        for x in xrange(config.TOTAL_DAY_DRAWS,
+                        config.TOTAL_DAY_DRAWS - config.FETCH_DRAW_BATCH_SIZE + 1,
+                        -1):
+            expected = dict(year=yesterday.year,
+                            month=yesterday.month, day=yesterday.day, nth=x)
+            self.assertIn(expected, xs)
+
+# the queue is full, expect just the first task enqueued
+    @mock.patch('dieci_e_lotto.wish.queue_is_full')
+    @mock.patch('dieci_e_lotto.repository.get_by_month')
+    @mock.patch('dieci_e_lotto.wish.get_last_draw')
+    def test_queue_full_enqueue_just_last(self,
+                                          last_draw, downloaded, full):
+        config.MAX_DAYS_IN_THE_PAST = 10
+        config.FETCH_DRAW_BATCH_SIZE = 12
+
+        # STUB get_last_draw
+        now = datetime.today()
+        first_week_day, total_days = monthrange(now.year, now.month)
+        last_draw.return_value = (
+            now.year, now.month, now.day, config.TOTAL_DAY_DRAWS)
+
+        # STUB downloaded_by_month
+        downloaded.return_value = [
+            Draw(now.year,
+                 now.month,
+                 now.day, i, [], 0) for i in range(1, config.TOTAL_DAY_DRAWS)]
+
+        # STUB queue_is_full
+        full.return_value = True
+
+        start_synchronization()
+
+        last_draw.assert_called_once()
+        downloaded.assert_called_with(now.year, now.month)
+
+        q_stub = self.testbed.get_stub(testbed.TASKQUEUE_SERVICE_NAME)
+        tasks = q_stub.get_filtered_tasks(
+            url="/task/fetch-draw", queue_names="fetch-draws")
+
+        self.assertEqual(len(tasks), 1)
+
+        xs = [json.loads(x.payload) for x in tasks]
+        self.assertEqual(xs[0], dict(
+            year=now.year, month=now.month, day=now.day, nth=config.TOTAL_DAY_DRAWS))
+
+    def tearDown(self):
+        self.testbed.deactivate()
+
+# the queue is full, the last extraction fetch has already enqueued,
+# enqueue it again? (no big deal)
+    @mock.patch('dieci_e_lotto.wish.queue_is_full')
+    @mock.patch('dieci_e_lotto.repository.get_by_month')
+    @mock.patch('dieci_e_lotto.wish.get_last_draw')
+    def test_call_start_synch_twice(self,
+                                    last_draw, downloaded, full):
+
+        config.MAX_DAYS_IN_THE_PAST = 10
+        config.FETCH_DRAW_BATCH_SIZE = 12
+
+        # STUB get_last_draw
+        now = datetime.today()
+        first_week_day, total_days = monthrange(now.year, now.month)
+        last_draw.return_value = (
+            now.year, now.month, now.day, config.TOTAL_DAY_DRAWS)
+
+        # STUB downloaded_by_month
+        downloaded.return_value = [
+            Draw(now.year,
+                 now.month,
+                 now.day, i, [], 0) for i in range(1, config.TOTAL_DAY_DRAWS)]
+
+        # STUB queue_is_full
+        full.return_value = True
+
+        start_synchronization()
+
+        last_draw.assert_called_once()
+        downloaded.assert_called_with(now.year, now.month)
+
+        q_stub = self.testbed.get_stub(testbed.TASKQUEUE_SERVICE_NAME)
+        tasks = q_stub.get_filtered_tasks(
+            url="/task/fetch-draw", queue_names="fetch-draws")
+
+        self.assertEqual(len(tasks), 1)
+
+        xs = [json.loads(x.payload) for x in tasks]
+        self.assertEqual(xs[0], dict(
+            year=now.year, month=now.month, day=now.day, nth=config.TOTAL_DAY_DRAWS))
+
+        tasks_again = q_stub.get_filtered_tasks(
+            url="/task/fetch-draw", queue_names="fetch-draws")
+
+        self.assertEqual(len(tasks), 1)
+
+        start_synchronization()
+        tasks_again = q_stub.get_filtered_tasks(
+            url="/task/fetch-draw", queue_names="fetch-draws")
+
+        self.assertEqual(len(tasks), 1)
+
+        xs = [json.loads(x.payload) for x in tasks]
+        self.assertEqual(xs[0], dict(
+            year=now.year, month=now.month, day=now.day, nth=config.TOTAL_DAY_DRAWS))
 
     def tearDown(self):
         self.testbed.deactivate()

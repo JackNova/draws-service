@@ -91,21 +91,50 @@ def handle_fetch(date, nth):
 
 
 def start_synchronization():
+    tasks_enqueued = 0
     year, month, day, nth = wish.get_last_draw()
+    logging.info('Last draw is the number %s of %s/%s/%s' %
+                 (nth, day, month, year))
     downloaded_already = set([(x.year, x.month, x.day, x.nth)
                               for x in repo.get_by_month(year, month)])
+    logging.info("%s draws have been downloaded already for the month %s/%s" %
+                 (len(downloaded_already), month, year))
     memo_month = month
     memo_day = day
     while True:
+        if tasks_enqueued >= config.FETCH_DRAW_BATCH_SIZE:
+            logging.info(
+                "Queue is full, (already enqueued %s in this batch) ending process early." % tasks_enqueued)
+            break
+        if memo_day is not day and wish.queue_is_full():
+            logging.info(
+                "Queue is full, (for day %s) ending process early." % day)
+            break
         if memo_day is not day and wish.is_time_to_stop(year, month, day):
+            logging.info('Process complete. No more task to schedule')
             break
         memo_day = day
 
-        if (year, month, day, nth) not in downloaded_already:
-            wish.schedule_fetch_draw(year, month, day, nth)
-        year, month, day, nth = wish.previous_draw(
-            year, month, day, nth)
+        first_week_day, month_total_days = monthrange(year, month)
+        is_month_download_complete = (
+            len(downloaded_already) == config.TOTAL_DAY_DRAWS * month_total_days)
+        if is_month_download_complete:
+            logging.info(
+                "There are no additional draws in this month to download")
+            year, month, day, nth = wish.last_extraction_of_previous_month(
+                year, month)
+            continue
+        else:
+            if (year, month, day, nth) not in downloaded_already:
+                wish.schedule_fetch_draw(year, month, day, nth)
+                tasks_enqueued += 1
+                logging.info("schedule fetch draw number %s of %s/%s/%s" %
+                             (nth, day, month, year))
+            year, month, day, nth = wish.previous_draw(
+                year, month, day, nth)
+
         if memo_month is not month:
+            logging.info("month switch from %s to %s" % (memo_month, month))
             downloaded_already = set([(x.year, x.month, x.day, x.nth)
                                       for x in repo.get_by_month(year, month)])
             memo_month = month

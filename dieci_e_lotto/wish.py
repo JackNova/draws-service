@@ -70,9 +70,16 @@ def get_last_draw():
 
 
 def schedule_fetch_draw(year, month, day, nth):
+    # https://cloud.google.com/appengine/docs/python/taskqueue/push/creating-tasks#naming_a_task
+    # A task name must be unique within a queue. If you try to add another
+    # task with the same name to a the queue, the operation will fail. After a
+    # task is removed from a queue you can't insert a task with the same name
+    # into the queue until 10 days have passed.
+    #unique_name = "%s-%02d-%02d-%02d" % (year, month, day, nth)
     task = taskqueue.add(
         url='/task/fetch-draw',
         queue_name="fetch-draws",
+        # name=unique_name,
         payload=json.dumps({
             'year': year,
             'month': month,
@@ -100,3 +107,12 @@ def is_time_to_stop(year, month, day):
         timedelta(days=config.MAX_DAYS_IN_THE_PAST + 1)
 
     return datetime(year, month, day) < stop_date
+
+
+def queue_is_full():
+    stats = taskqueue.QueueStatistics.fetch("fetch-draws")
+    return stats.tasks > config.FETCH_DRAW_BATCH_SIZE
+
+
+def last_extraction_of_previous_month(year, month):
+    return previous_draw(year, month, 1, 1)

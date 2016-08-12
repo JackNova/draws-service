@@ -65,5 +65,39 @@ and the item is marked as complete.
 |      | complete monitoring pages             |
 |      | deploy and test                       |
 |      | migrate                               |
-|      | write tests for monitoring pages      |
-| [ ]  | refactor download all script          |
+
+
+### 29
+| DONE | TASK                                                                    |
+| ---  | ----------------------------------                                      |
+| [x]  | think about a solution for the enqueue same task multiple times problem |
+
+
+### 30
+| DONE | TASK                                     |
+| ---  | ----------------------------------       |
+| [x]  | reason about new design for download_all |
+| [x]  |                                          |
+| [x]  | rewrite the download_all workflow logic  |
+| [x]  |                                          |
+
+# August
+
+### 9
+| DONE | TASK                                                       |
+| ---  | ----------------------------------                         |
+| [x]  | read uncommitted code to get back on track; plan next work |
+| [x]  | implement new functions                                    |
+
+### 11
+| DONE | TASK                                                         |
+| ---  | -----------------------------------------------------------  |
+| [x]  | add tests for new code                                       |
+| [x]  |                                                              |
+
+### 12
+| DONE | TASK                                                         |
+|      | refactor tests and deploy                                    |
+|      | try to abstract the main loop and generalize the task        |
+|      | better handling for migrations                               |
+|      | the entire month of 288*31 draws is too big as cluster unit? |
