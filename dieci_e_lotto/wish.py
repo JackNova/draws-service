@@ -75,7 +75,8 @@ def schedule_fetch_draw(year, month, day, nth):
     # task with the same name to a the queue, the operation will fail. After a
     # task is removed from a queue you can't insert a task with the same name
     # into the queue until 10 days have passed.
-    #unique_name = "%s-%02d-%02d-%02d" % (year, month, day, nth)
+
+    # unique_name = "%s-%02d-%02d-%02d" % (year, month, day, nth)
     task = taskqueue.add(
         url='/task/fetch-draw',
         queue_name="fetch-draws",

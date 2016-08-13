@@ -54,7 +54,8 @@ class NdbDraw(ndb.Model):
 
     @classmethod
     def query_by_month(cls, year, month):
-        q = cls.query(cls.month == month, ancestor=cls.month_key(year, month)).order(
+        q = cls.query(cls.month == month,
+                      ancestor=cls.month_key(year, month)).order(
             cls.year, cls.month, cls.day, cls.nth)
         return q
 

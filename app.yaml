@@ -6,6 +6,7 @@ threadsafe: yes
 
 builtins:
 - deferred: on
+- appstats: on
 
 handlers:
 - url: /update_schema
