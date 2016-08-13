@@ -97,7 +97,12 @@ and the item is marked as complete.
 
 ### 12
 | DONE | TASK                                                         |
-|      | refactor tests and deploy                                    |
+| [x]  | refactor tests and deploy                                    |
+
+### 13
+| DONE | TASK                                                         |
+| [x]  | diagnose high cost problem, and design a solution            |
+|      | implement solution and document                              |
 |      | try to abstract the main loop and generalize the task        |
 |      | better handling for migrations                               |
 |      | the entire month of 288*31 draws is too big as cluster unit? |
